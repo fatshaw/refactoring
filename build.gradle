@@ -11,7 +11,7 @@ repositories {
 
 
 dependencies {
-    compile group: 'org.projectlombok', name: 'lombok', version: '1.16.16'
+    compile group: 'org.projectlombok', name: 'lombok', version: '1.16.22'
 
     testCompile(
             "junit:junit:4.12"
