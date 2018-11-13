@@ -1,20 +1,25 @@
 package com.fatshaw.learning.refactoring.kata;
 
+import com.fatshaw.learning.refactoring.kata.TestReverse.ListNode;
 import com.fatshaw.learning.refactoring.kata.TestReverse.TreeNode;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeMap;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -183,12 +188,634 @@ class NumArray {
     }
 }
 
+class Solution {
+
+    Random r = new Random(System.currentTimeMillis());
+    ListNode head;
+
+    /**
+     * @param head The linked list's head. Note that the head is guaranteed to be not null, so it contains at least one
+     * node.
+     */
+    public Solution(ListNode head) {
+        this.head = head;
+    }
+
+    /**
+     * Returns a random node's value.
+     */
+    public int getRandom() {
+        ListNode node = head;
+        int res = node.val;
+        for (int i = 1; node != null; i++) {
+            int j = r.nextInt(i);
+            if (j == 0) {
+                res = node.val;
+            }
+            node = node.next;
+        }
+        return res;
+    }
+}
+
+
 public class TestReverse {
+
+    @Test
+    public void testlengthOfLongestSubstring() {
+        assert 4 == lengthOfLongestSubstring("abcd");
+        assert 4 == lengthOfLongestSubstring("abcdc");
+        assert 5 == lengthOfLongestSubstring("abcdcdefgg");
+        assert 3 == lengthOfLongestSubstring("abcabcbb");
+        assert 1 == lengthOfLongestSubstring("bbbb");
+        assert 3 == lengthOfLongestSubstring("pwwkew");
+    }
+
+
+    public int lengthOfLongestSubstring(String s) {
+        int[] letters = new int[128];
+        Arrays.fill(letters, -1);
+        int answer = 0;
+        int leftBound = -1;
+        for (int i = 0; i < s.length(); i++) {
+            int c = s.charAt(i);
+            if (letters[c] > leftBound) {
+                leftBound = letters[c];
+            }
+            answer = Math.max(answer, i - leftBound);
+            letters[c] = i;
+        }
+        return answer;
+    }
+
+    @Test
+    public void testrotateRight() {
+        ListNode node = new ListNode(1);
+        node.next = new ListNode(2);
+        node.next.next = new ListNode(3);
+        node.next.next.next = new ListNode(4);
+        node.next.next.next.next = new ListNode(5);
+
+        ListNode p = rotateRight(node, 1);
+        while (p != null) {
+            System.out.println(p.val);
+            p = p.next;
+        }
+
+        System.out.println("。。。。。。。。。。。。。。");
+
+        node = new ListNode(1);
+        node.next = new ListNode(2);
+        node.next.next = new ListNode(3);
+        node.next.next.next = new ListNode(4);
+        node.next.next.next.next = new ListNode(5);
+
+        p = rotateRight(node, 0);
+        while (p != null) {
+            System.out.println(p.val);
+            p = p.next;
+        }
+
+        System.out.println("。。。。。。。。。。。。。。");
+
+        node = new ListNode(1);
+        node.next = new ListNode(2);
+        node.next.next = new ListNode(3);
+        node.next.next.next = new ListNode(4);
+        node.next.next.next.next = new ListNode(5);
+
+        p = rotateRight(node, 3);
+        while (p != null) {
+            System.out.println(p.val);
+            p = p.next;
+        }
+
+        System.out.println("。。。。。。。。。。。。。。");
+
+        node = new ListNode(1);
+        node.next = new ListNode(2);
+        node.next.next = new ListNode(3);
+        node.next.next.next = new ListNode(4);
+        node.next.next.next.next = new ListNode(5);
+
+        p = rotateRight(node, 5);
+        while (p != null) {
+            System.out.println(p.val);
+            p = p.next;
+        }
+
+        System.out.println("。。。。。。。。。。。。。。");
+
+        node = new ListNode(1);
+        node.next = new ListNode(2);
+        node.next.next = new ListNode(3);
+        node.next.next.next = new ListNode(4);
+        node.next.next.next.next = new ListNode(5);
+
+        p = rotateRight(node, 11);
+        while (p != null) {
+            System.out.println(p.val);
+            p = p.next;
+        }
+
+        p = rotateRight(null, 0);
+        while (p != null) {
+            System.out.println(p.val);
+            p = p.next;
+        }
+
+        p = rotateRight(null, 1);
+        while (p != null) {
+            System.out.println(p.val);
+            p = p.next;
+        }
+    }
+
+
+    public ListNode rotateRight(ListNode head, int k) {
+
+        if (head == null) {
+            return null;
+        }
+
+        int n = 0;
+        ListNode fast = head;
+        for (int i = 0; i < k; i++) {
+            fast = fast.next;
+            n++;
+            if (fast == null) {
+                k = k % n + n;
+                fast = head;
+            }
+        }
+
+        ListNode slow = head;
+        while (fast.next != null) {
+            slow = slow.next;
+            fast = fast.next;
+        }
+
+        if (fast != slow) {
+            fast.next = head;
+            head = slow.next;
+            slow.next = null;
+        }
+
+        return head;
+    }
+
+    @Test
+    public void testnumSubarraysWithSum() {
+        assert 6 == subarraySum(new int[]{0, 0, 1, 0, 1, 0}, 2);
+        assert 10 == subarraySum(new int[]{0, 1, 0, 1, 0, 0, 1, 0}, 2);
+        assert 4 == subarraySum(new int[]{1, 0, 1, 0, 1}, 2);
+        assert 0 == subarraySum(new int[]{0, 0, 0}, 2);
+        assert 3 == subarraySum(new int[]{1, 1, 1, 1}, 2);
+        assert 5 == subarraySum(new int[]{1, 1, 0, 1, 1}, 2);
+        assert 9 == subarraySum(new int[]{0, 0, 1, 0, 0, 0}, 0);
+    }
+
+    public int numSubarraysWithSum(int[] A, int S) {
+        int[] prefix = new int[A.length + 1];
+        prefix[0] = 1;
+        int cs = 0;
+        int length = 0;
+        for (int i = 0; i < A.length; i++) {
+            cs += A[i];
+            if (cs >= S) {
+                length += prefix[cs - S];
+            }
+            prefix[cs]++;
+        }
+        return length;
+    }
+
+    @Test
+    public void longestMountain() {
+        assert 5 == longestMountain(new int[]{1, 2, 1, 0, 2, 3, 4, 3});
+        assert 3 == longestMountain(new int[]{1, 3, 2});
+        assert 3 == longestMountain(new int[]{2, 1, 3, 2, 3});
+        assert 5 == longestMountain(new int[]{2, 1, 4, 7, 3, 2, 5});
+        assert 0 == longestMountain(new int[]{2, 2, 2});
+        assert 0 == longestMountain(new int[]{3, 2, 1});
+        assert 0 == longestMountain(new int[]{3, 3, 1});
+        assert 3 == longestMountain(new int[]{1, 1, 0, 0, 1, 0});
+    }
+
+
+    public int longestMountain(int[] A) {
+        int low;
+        int preLow = Integer.MAX_VALUE;
+        int length = 0;
+        for (int i = 1; i < A.length; i++) {
+            if (A[i - 1] < A[i] && (i == 1 || A[i - 1] <= A[i - 2])) {
+                preLow = i - 1;
+            } else if (A[i] < A[i - 1]) {
+                low = i;
+                length = Math.max(length, low - preLow + 1);
+            } else if (A[i] == A[i - 1]) {
+                preLow = Integer.MAX_VALUE;
+            }
+        }
+        return length;
+    }
+
+    @Test
+    public void testmaxProfitAssignment() {
+        assert
+            100 == maxProfitAssignment(new int[]{2, 4, 6, 8, 10}, new int[]{10, 20, 30, 40, 50}, new int[]{4, 5, 6, 7});
+        assert 50 == maxProfitAssignment(new int[]{3, 4, 5}, new int[]{10, 20, 30}, new int[]{4, 5});
+        assert 40 == maxProfitAssignment(new int[]{3, 4, 6}, new int[]{10, 20, 30}, new int[]{4, 5});
+        assert 142 == maxProfitAssignment(new int[]{7, 20, 68}, new int[]{26, 28, 57}, new int[]{71, 20, 71});
+        assert 0 == maxProfitAssignment(new int[]{7, 20, 68}, new int[]{26, 28, 57}, new int[]{1, 1, 1});
+        assert 324 == maxProfitAssignment(new int[]{68, 35, 52, 47, 86}, new int[]{67, 17, 1, 81, 3},
+            new int[]{92, 10, 85, 84, 82});
+
+        assert 1392 == maxProfitAssignment(
+            new int[]{66, 1, 28, 73, 53, 35, 45, 60, 100, 44, 59, 94, 27, 88, 7, 18, 83, 18, 72, 63},
+            new int[]{66, 20, 84, 81, 56, 40, 37, 82, 53, 45, 43, 96, 67, 27, 12, 54, 98, 19, 47, 77},
+            new int[]{61, 33, 68, 38, 63, 45, 1, 10, 53, 23, 66, 70, 14, 51, 94, 18, 28, 78, 100, 16});
+    }
+
+    public int maxProfitAssignment(int[] difficulty, int[] profit, int[] worker) {
+        Map<Integer, Integer> profiles = new HashMap<>();
+        for (int i = 0; i < difficulty.length; i++) {
+            profiles.put(difficulty[i], Math.max(profiles.getOrDefault(difficulty[i], 0), profit[i]));
+        }
+
+        Arrays.sort(difficulty);
+        Arrays.sort(worker);
+        int wi = 0;
+        int di = 0;
+        int totalProfit = 0;
+        int maxProfitForCurrentWorker = 0;
+        while (wi < worker.length) {
+            while (di < difficulty.length && difficulty[di] <= worker[wi]) {
+                maxProfitForCurrentWorker = Math.max(maxProfitForCurrentWorker, profiles.get(difficulty[di]));
+                di++;
+            }
+            totalProfit += maxProfitForCurrentWorker;
+            wi++;
+        }
+        return totalProfit;
+    }
+
+    @Test
+    public void testremoveNthFromEnd() {
+        ListNode node = new ListNode(1);
+        node.next = new ListNode(2);
+        node.next.next = new ListNode(4);
+        node.next.next.next = new ListNode(3);
+        node.next.next.next.next = new ListNode(2);
+
+        ListNode p = removeNthFromEnd(node, 3);
+        while (p != null) {
+            System.out.println(p.val);
+            p = p.next;
+        }
+
+        System.out.println("..............");
+
+        node = new ListNode(1);
+        p = removeNthFromEnd(node, 1);
+        while (p != null) {
+            System.out.println(p.val);
+            p = p.next;
+        }
+
+        System.out.println("..............");
+
+        node = new ListNode(1);
+        node.next = new ListNode(2);
+        node.next.next = new ListNode(3);
+        node.next.next.next = new ListNode(4);
+        node.next.next.next.next = new ListNode(5);
+        p = removeNthFromEnd(node, 2);
+        while (p != null) {
+            System.out.println(p.val);
+            p = p.next;
+        }
+
+        System.out.println("..............");
+
+        node = new ListNode(1);
+        node.next = new ListNode(2);
+        node.next.next = new ListNode(3);
+        node.next.next.next = new ListNode(4);
+        node.next.next.next.next = new ListNode(5);
+        p = removeNthFromEnd(node, 5);
+        while (p != null) {
+            System.out.println(p.val);
+            p = p.next;
+        }
+
+        System.out.println("..............");
+
+    }
+
+    public ListNode removeNthFromEnd(ListNode head, int n) {
+        ListNode fast = head;
+        for (int i = 0; i < n; i++) {
+            if (fast == null) {
+                break;
+            }
+            fast = fast.next;
+        }
+
+        ListNode slow = head;
+        ListNode pre = null;
+        while (slow != null && fast != null) {
+            pre = slow;
+            slow = slow.next;
+            fast = fast.next;
+        }
+
+        if (pre == null) {
+            return slow.next;
+        }
+        pre.next = slow.next;
+        return head;
+
+    }
+
+    @Test
+    public void testpartition2() {
+
+        ListNode node = new ListNode(1);
+        node.next = new ListNode(2);
+        node.next.next = new ListNode(4);
+        node.next.next.next = new ListNode(3);
+        node.next.next.next.next = new ListNode(2);
+
+        ListNode p = partition(node, 3);
+        while (p != null) {
+            System.out.println(p.val);
+            p = p.next;
+        }
+
+        System.out.println("..............");
+
+        node = new ListNode(1);
+        node.next = new ListNode(4);
+        node.next.next = new ListNode(3);
+        node.next.next.next = new ListNode(2);
+        node.next.next.next.next = new ListNode(5);
+        node.next.next.next.next.next = new ListNode(2);
+
+        p = partition(node, 3);
+        while (p != null) {
+            System.out.println(p.val);
+            p = p.next;
+        }
+
+        System.out.println("..............");
+
+        node = new ListNode(3);
+        node.next = new ListNode(2);
+        node.next.next = new ListNode(1);
+
+        p = partition(node, 3);
+        while (p != null) {
+            System.out.println(p.val);
+            p = p.next;
+        }
+
+        System.out.println("..............");
+
+        node = new ListNode(1);
+        node.next = new ListNode(1);
+        node.next.next = new ListNode(1);
+
+        p = partition(node, 2);
+        while (p != null) {
+            System.out.println(p.val);
+            p = p.next;
+        }
+    }
+
+    public ListNode partition(ListNode head, int x) {
+        ListNode node1 = new ListNode(0);
+        ListNode node2 = new ListNode(0);
+        ListNode dummy1 = node1;
+        ListNode dummy2 = node2;
+
+        ListNode tmp = head;
+        while (tmp != null) {
+            if (tmp.val < x) {
+                node1.next = tmp;
+                node1 = tmp;
+            } else {
+                node2.next = tmp;
+                node2 = tmp;
+            }
+            tmp = tmp.next;
+        }
+
+        node2.next = null;
+        node1.next = dummy2.next;
+        return dummy1.next;
+    }
+//
+//
+//    public ListNode partition(ListNode head, int x) {
+//        if (head == null || head.next == null) {
+//            return head;
+//        }
+//        ListNode insertPos = head;
+//        ListNode preInsertPos = null;
+//        while (insertPos != null) {
+//            if (insertPos.val >= x) {
+//                break;
+//            }
+//            preInsertPos = insertPos;
+//            insertPos = insertPos.next;
+//        }
+//
+//        if (insertPos != null) {
+//            ListNode tmp = insertPos.next;
+//            ListNode preTmp = insertPos;
+//            while (tmp != null) {
+//                if (tmp.val < x) {
+//                    ListNode newNode = new ListNode(tmp.val);
+//                    newNode.next = insertPos;
+//                    if (preInsertPos == null) {
+//                        preInsertPos = newNode;
+//                        head = preInsertPos;
+//                    } else {
+//                        preInsertPos.next = newNode;
+//                    }
+//                    preInsertPos = newNode;
+//
+//                    preTmp.next = tmp.next;
+//                    tmp = tmp.next;
+//                } else {
+//                    preTmp = tmp;
+//                    tmp = tmp.next;
+//                }
+//            }
+//        }
+//        return head;
+//    }
+
+    @Test
+    public void testcheckInclusion() {
+        assert checkInclusion("ab", "eidbaooo");
+        assert checkInclusion("ab", "aeidbaooo");
+        assert !checkInclusion("ab", "eidboaoo");
+    }
+
+    public boolean checkInclusion(String s1, String s2) {
+        for (int j = 0; j < s2.length() - s1.length() + 1; j++) {
+            char[] chars = new char[26];
+            for (int i = 0; i < s1.length(); i++) {
+                chars[s1.charAt(i) - 'a'] += 1;
+                chars[s2.charAt(j + i) - 'a'] -= 1;
+            }
+            boolean iszero = true;
+            for (int i = 0; i < 26; i++) {
+                if (chars[i] != 0) {
+                    iszero = false;
+                }
+            }
+            if (iszero) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Test
+    public void testTotalFruit() {
+        assert 3 == totalFruit(new int[]{1, 1, 1});
+        assert 3 == totalFruit(new int[]{1, 2, 1});
+        assert 3 == totalFruit(new int[]{0, 1, 2, 2});
+        assert 4 == totalFruit(new int[]{1, 2, 3, 2, 2});
+        assert 5 == totalFruit(new int[]{3, 3, 3, 1, 2, 1, 1, 2, 3, 3, 4});
+        assert 8 == totalFruit(new int[]{1, 2, 1, 1, 1, 3, 3, 3, 3, 3});
+
+    }
+
+    public int totalFruit(int[] tree) {
+        int i = 0;
+        int count = 0;
+        int tmpCount = 0;
+        int tmpBucketOne = -1;
+        int tmpBucketTwo = -1;
+        int tmpIndex = 0;
+        while (i < tree.length) {
+            int type = tree[i];
+            if (tmpBucketOne == -1) {
+                tmpBucketOne = type;
+                tmpCount += 1;
+            } else if (tmpBucketTwo == -1) {
+                tmpBucketTwo = type;
+                tmpCount += 1;
+            } else if (tmpBucketOne == type || tmpBucketTwo == type) {
+                tmpCount++;
+            } else {
+                count = Math.max(count, tmpCount);
+                tmpBucketOne = tree[tmpIndex];
+                tmpCount = i - tmpIndex + 1;
+                tmpBucketTwo = type;
+            }
+
+            if (tree[tmpIndex] != type) {
+                tmpIndex = i;
+            }
+
+            i++;
+        }
+
+        count = Math.max(count, tmpCount);
+
+        return count;
+    }
+
+    @Test
+    public void testgetRandomList() {
+        ListNode head = new ListNode(1);
+        head.next = new ListNode(2);
+        head.next.next = new ListNode(3);
+        Solution solution = new Solution(head);
+        System.out.println(solution.getRandom());
+    }
+
+
+    @Test
+    public void testminDistance() {
+        assert 1 == minDistance("", "a");
+        assert 0 == minDistance("", "");
+        assert 1 == minDistance("a", "");
+
+        assert 0 == minDistance("a", "a");
+        assert 1 == minDistance("a", "b");
+        assert 1 == minDistance("ab", "a");
+        assert 3 == minDistance("horse", "ros");
+        assert 5 == minDistance("intention", "execution");
+
+    }
+
+    public int minDistance(String word1, String word2) {
+        int[][] dp = new int[word1.length() + 1][word2.length() + 1];
+        for (int i = 1; i <= word1.length(); i++) {
+            dp[i][0] = i;
+        }
+        for (int i = 1; i <= word2.length(); i++) {
+            dp[0][i] = i;
+        }
+        for (int i = 1; i <= word1.length(); i++) {
+            for (int j = 1; j <= word2.length(); j++) {
+                dp[i][j] = Math
+                    .min(Math.min(dp[i][j - 1], dp[i - 1][j]) + 1,
+                        dp[i - 1][j - 1] + (word1.charAt(i - 1) == word2.charAt(j - 1) ? 0 : 1));
+            }
+        }
+        return dp[word1.length()][word2.length()];
+    }
+
+    private boolean check(double v, double m) {
+        double sqrt = Math.sqrt(v);
+        return Math.abs(sqrt - m) < 0.000001;
+    }
+
+    @Test
+    public void testSqrt() {
+        System.out.printf("%f,%f,%f\n", sqrt(5), sqrt2(5), Math.sqrt(5));
+        System.out.printf("%f,%f,%f\n", sqrt(1), sqrt2(1), Math.sqrt(1));
+    }
+
+    public double sqrt(double v) {
+        double l = 0;
+        double r = v;
+        if (v < 1) {
+            l = v;
+            r = 1;
+        }
+        while (l < r) {
+            double m = (l + r) / 2;
+            if (check(v, m)) {
+                return m;
+            } else if (m * m < v) {
+                l = m + 0.000001;
+            } else {
+                r = m - 0.000001;
+            }
+        }
+        return l;
+    }
+
+    public double sqrt2(double v) {
+        double g = v;
+        while (!check(v, g)) {
+            g = (g + v / g) / 2;
+        }
+        return g;
+    }
 
     @Test
     public void testintersection() {
         assert Arrays.equals(intersection(new int[]{1, 2, 3}, new int[]{1, 2}), new int[]{1, 2});
-        assert Arrays.equals(intersection(new int[]{1,2,2,1}, new int[]{2, 2}), new int[]{2});
+        assert Arrays.equals(intersection(new int[]{1, 2, 2, 1}, new int[]{2, 2}), new int[]{2});
     }
 
     public int[] intersection(int[] nums1, int[] nums2) {
